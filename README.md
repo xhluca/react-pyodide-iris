@@ -1,13 +1,13 @@
 # Getting started with pyodide in React
 
-This repository serves as a template for using pyodide in React. It was created using `create-react-app`.
+This repository shows how to classify Iris using scikit-learn directly inside your react app (all happening client-side). It was created using [`react-pyodide-template`](https://github.com/xhlulu/react-pyodide-template).
 
 ## Quickstart
 
 To get started, simply run the lines below in your terminal:
 ```
-git clone https://github.com/xhlulu/react-pyodide-template.git
-cd react-pyodide-template
+git clone https://github.com/xhlulu/react-pyodide-iris.git
+cd react-pyodide-iris
 npm i
 npm start
 ```
