@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import importScript from './python/imports.py';
-import predScript from './python/predict.py';
 import trainScript from './python/train.py';
+import predScript from './python/predict.py';
 
 const round = (n) => Number.parseFloat(n).toFixed(2);
 
@@ -41,6 +40,7 @@ const AnnotatedSlider = props => {
 }
 
 function App() {
+  const mounted = useRef(false);
   const [sepLen, setSepLen] = useState(6.00);
   const [sepWid, setSepWid] = useState(3.25);
   const [petLen, setPetLen] = useState(4);
@@ -51,26 +51,23 @@ function App() {
   useEffect(() => {
     window.languagePluginLoader
       .then(() => {
-        return window.pyodide.loadPackage(['numpy', 'pandas', 'scikit-learn'])
+        if (mounted.current === false)
+          return window.pyodide.loadPackage(['numpy', 'pandas', 'scikit-learn']);
       })
       .then(() => {
         const py = window.pyodide;
-        runModule(importScript, code => {
-          setLabel("(importing...)");
-          py.runPython(code);
-          console.log("modules loaded.");
-        });
-
-        runModule(trainScript, code => {
-          setLabel("(training...)");
-          py.runPython(code);
-          console.log("model trained.");
-        });
+        if (mounted.current === false) {
+          mounted.current = true;
+          runModule(trainScript, code => {
+            setLabel("(training...)");
+            py.runPython(code);
+          });
+        }
 
         runModule(predScript, code => {
           setLabel("(predicting...)");
-          window.data = { 
-            sep_len: sepLen, 
+          window.data = {
+            sep_len: sepLen,
             sep_wid: sepWid,
             pet_len: petLen,
             pet_wid: petWid
@@ -78,8 +75,9 @@ function App() {
           const predicted = py.runPython(code);
           setLabel(predicted);
         });
+
       })
-  }, []);
+  }, [sepLen, sepWid, petLen, petWid]);
 
   return (
     <div className="App">

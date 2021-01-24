@@ -8,5 +8,7 @@ X_inp = [[
 ]]
 y_pred = int(clf.predict(X_inp))
 pred_name = iris.target_names[y_pred]
+print("Model predicted:", pred_name)
 
+# Pass this to pyodide
 pred_name

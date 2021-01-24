@@ -1,3 +1,7 @@
+from sklearn.datasets import load_iris
+from sklearn.svm import LinearSVC
+from sklearn.model_selection import train_test_split
+
 # Load the dataset
 iris = load_iris()
 X = iris.data
