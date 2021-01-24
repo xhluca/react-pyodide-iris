@@ -1,8 +1,16 @@
-import time
+# Load the dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
 
-def train():
-    time.sleep(1)
-    return lambda x: x+5
+# Split the dataset into train and test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.1, random_state=42
+)
 
-model = train()
-print("model trained:", model)
+# Train a classifier
+clf = LinearSVC()
+clf.fit(X_train, y_train)
+
+# Verify the score of the clf
+print("Model Score:", clf.score(X_test, y_test))

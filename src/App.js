@@ -8,6 +8,16 @@ import trainScript from './python/train.py';
 
 const round = (n) => Number.parseFloat(n).toFixed(2);
 
+const runModule = (script, func) => {
+  return fetch(script).then(src => src.text()).then(func)
+}
+
+const moduleToCode = async (script) => {
+  const code = await fetch(script).then(src => src.text());
+  return code;
+}
+
+
 const AnnotatedSlider = props => {
   return (
     <div>
@@ -22,8 +32,7 @@ const AnnotatedSlider = props => {
           max={props.max}
           value={props.value}
           onChange={(event) => {
-            const newVal = round(event.target.value);
-            props.setter(newVal);
+            props.setter(round(event.target.value));
           }}
         />
       </div>
@@ -32,49 +41,55 @@ const AnnotatedSlider = props => {
 }
 
 function App() {
-  const [sepalLength, setSepalLength] = useState(6.00);
-  const [sepalWidth, setSepalWidth] = useState(3.25);
-  const [petalLength, setPetalLength] = useState(4);
-  const [petalWidth, setPetalWidth] = useState(1.25);
+  const [sepLen, setSepLen] = useState(6.00);
+  const [sepWid, setSepWid] = useState(3.25);
+  const [petLen, setPetLen] = useState(4);
+  const [petWid, setPetWid] = useState(1.25);
 
   const [label, setLabel] = useState("(loading...)");
 
-
   useEffect(() => {
-    window.languagePluginLoader.then(() => {
-      window.pyodide.loadPackage([])
-        .then(() => {
-          fetch(importScript).then(src => src.text()).then(code => {
-            window.pyodide.runPython(code);
-            console.log("modules imported");
-          })
-        })
-        .then(() => {
-          fetch(trainScript).then(src => src.text()).then(code => {
-            window.pyodide.runPython(code);
-            console.log("model trained");
-          })
-        })
-        .then(() => {
-          window.data = {x: 10};
-          fetch(predScript).then(src => src.text()).then(code => {
-            window.pyodide.runPython(code);
-            console.log("pyodide returned", window.pyodide.globals.prediction);
-          })
-        })
-    })
+    window.languagePluginLoader
+      .then(() => {
+        return window.pyodide.loadPackage(['numpy', 'pandas', 'scikit-learn'])
+      })
+      .then(() => {
+        const py = window.pyodide;
+        runModule(importScript, code => {
+          setLabel("(importing...)");
+          py.runPython(code);
+          console.log("modules loaded.");
+        });
 
-  }, [])
+        runModule(trainScript, code => {
+          setLabel("(training...)");
+          py.runPython(code);
+          console.log("model trained.");
+        });
+
+        runModule(predScript, code => {
+          setLabel("(predicting...)");
+          window.data = { 
+            sep_len: sepLen, 
+            sep_wid: sepWid,
+            pet_len: petLen,
+            pet_wid: petWid
+          };
+          const predicted = py.runPython(code);
+          setLabel(predicted);
+        });
+      })
+  }, []);
 
   return (
     <div className="App">
       <div className="App-content">
         <img src={logo} className="App-logo" alt="logo" />
         <div>
-          <AnnotatedSlider name="Sepal Length" min={4} max={8} value={sepalLength} setter={setSepalLength} />
-          <AnnotatedSlider name="Sepal Width" min={2} max={4.5} value={sepalWidth} setter={setSepalWidth} />
-          <AnnotatedSlider name="Petal Length" min={1} max={7} value={petalLength} setter={setPetalLength} />
-          <AnnotatedSlider name="Petal Width" min={0} max={2.5} value={petalWidth} setter={setPetalWidth} />
+          <AnnotatedSlider name="Sepal Length" min={4} max={8} value={sepLen} setter={setSepLen} />
+          <AnnotatedSlider name="Sepal Width" min={2} max={4.5} value={sepWid} setter={setSepWid} />
+          <AnnotatedSlider name="Petal Length" min={1} max={7} value={petLen} setter={setPetLen} />
+          <AnnotatedSlider name="Petal Width" min={0} max={2.5} value={petWid} setter={setPetWid} />
         </div>
         <div>Predicted label: {label}</div>
       </div>

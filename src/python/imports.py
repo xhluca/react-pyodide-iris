@@ -1,4 +1,3 @@
-import math
-import os
-
-print("imported", math, "and", os)
+from sklearn.datasets import load_iris
+from sklearn.svm import LinearSVC
+from sklearn.model_selection import train_test_split
