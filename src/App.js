@@ -11,13 +11,10 @@ const runModule = (script, func) => {
   return fetch(script).then(src => src.text()).then(func)
 }
 
-const moduleToCode = async (script) => {
-  const code = await fetch(script).then(src => src.text());
-  return code;
-}
-
 
 const AnnotatedSlider = props => {
+  const [value, setValue] = useState(round(props.value));
+
   return (
     <div>
       <div className="App-slider-desc">
@@ -29,10 +26,9 @@ const AnnotatedSlider = props => {
           step={0.05}
           min={props.min}
           max={props.max}
-          value={props.value}
-          onChange={(event) => {
-            props.setter(round(event.target.value));
-          }}
+          value={value}
+          onChange={event => setValue(event.target.value)}
+          onMouseUp={event => props.setter(round(event.target.value))}
         />
       </div>
     </div>
