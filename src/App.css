@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  background-color: #282c34;
 }
 
 .App-logo {
@@ -14,9 +15,8 @@
 }
 
 .App-content {
-  background-color: #282c34;
   min-height: 100vh;
-  display: flex;
+  display: block;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -45,4 +45,19 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.App-image {
+  height: 35vh;
+  padding-top: 30px;
+  padding-bottom: 10px;
+}
+
+.App-github {
+  display: flex;
+  float: right;
+  padding: 15px;
+  width: 40px;
+  height: 40px;
 }
