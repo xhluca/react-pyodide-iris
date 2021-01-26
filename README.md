@@ -2,7 +2,7 @@
 
 This repository shows how to classify Iris using scikit-learn directly inside your react app (all happening client-side). It was created using [`react-pyodide-template`](https://github.com/xhlulu/react-pyodide-template).
 
-![Image demoing the Iris app](./iris-demo.gif)
+![Image demoing the Iris app](./images/iris-demo.gif)
 
 The app will take one minute to load the first time since it is downloading large files through the network.
 
