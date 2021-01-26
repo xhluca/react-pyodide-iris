@@ -51,15 +51,15 @@ function App() {
           return window.pyodide.loadPackage(['numpy', 'pandas', 'scikit-learn']);
       })
       .then(() => {
-        const py = window.pyodide;
         if (mounted.current === false) {
           mounted.current = true;
           runModule(trainScript, code => {
             setLabel("(training...)");
-            py.runPython(code);
+            window.pyodide.runPython(code);
           });
         }
-
+      })
+      .then(() => {
         runModule(predScript, code => {
           setLabel("(predicting...)");
           window.data = {
@@ -68,10 +68,9 @@ function App() {
             pet_len: petLen,
             pet_wid: petWid
           };
-          const predicted = py.runPython(code);
+          const predicted = window.pyodide.runPython(code);
           setLabel(predicted);
         });
-
       })
   }, [sepLen, sepWid, petLen, petWid]);
 
