@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Pyodide Iris Classification in React",
+  "name": "A simple react app that lets you train a model on the iris dataset and predict on custom input; all using scikit-learn and pyodide",
   "icons": [
     {
       "src": "favicon.ico",
