@@ -18,6 +18,11 @@ const runModule = (script, func) => {
   return fetch(script).then(src => src.text()).then(func)
 }
 
+const loadModule = async script => {
+  const code = await fetch(script).then(src => src.text());
+  return code;
+}
+
 
 const AnnotatedSlider = props => {
   const [value, setValue] = useState(round(props.value));
@@ -50,44 +55,55 @@ function App() {
   const [petWid, setPetWid] = useState(1.25);
 
   const [label, setLabel] = useState("(loading...)");
-  const [imgSrc, setImgSrc] = useState();
+  const [imgSrc, setImgSrc] = useState(logo);
+  const [imgClass, setImgClass] = useState("App-logo");
 
   useEffect(() => {
-    window.languagePluginLoader
-      .then(() => {
-        if (mounted.current === false)
-          return window.pyodide.loadPackage(['numpy', 'pandas', 'scikit-learn']);
-      })
-      .then(() => {
-        if (mounted.current === false) {
-          mounted.current = true;
-          runModule(trainScript, code => {
+    const runEffect = async () => {
+      const trainCode = await loadModule(trainScript);
+      const predCode = await loadModule(predScript);
+
+      window.languagePluginLoader
+        .then(() => {
+          if (mounted.current === false)
+            return window.pyodide.loadPackage(['numpy', 'pandas', 'scikit-learn']);
+        })
+        .then(() => {
+          const py = window.pyodide;
+
+          if (mounted.current === false) {
+            mounted.current = true;
             setLabel("(training...)");
-            window.pyodide.runPython(code);
-          });
-        }
-      })
-      .then(() => {
-        runModule(predScript, code => {
-          setLabel("(predicting...)");
+            py.runPython(trainCode);
+          }
+          
           window.data = {
             sep_len: sepLen,
             sep_wid: sepWid,
             pet_len: petLen,
             pet_wid: petWid
           };
-          const predicted = window.pyodide.runPython(code);
+          
+          
+          setLabel("(predicting...)");
+          const predicted = py.runPython(predCode);
+          
           setLabel(predicted);
           setImgSrc(urls[predicted]);
-        });
-      })
+          setImgClass("App-image");
+        })
+    }
+
+    runEffect();
   }, [sepLen, sepWid, petLen, petWid]);
 
   return (
-    
+
     <div className="App">
       <div className="App-github">
-        <a href="https://github.com/xhlulu/react-pyodide-iris"><img src={github} height="100%" width="100%"/></a>
+          <a href="https://github.com/xhlulu/react-pyodide-iris" target="_blank">
+            <img src={github} height="100%" width="100%" />
+          </a>
       </div>
       <div className="App-content">
         <h2>Iris Classifier (with pyodide and scikit-learn)</h2>
@@ -97,7 +113,7 @@ function App() {
           <AnnotatedSlider name="Petal Length" min={1} max={7} value={petLen} setter={setPetLen} />
           <AnnotatedSlider name="Petal Width" min={0} max={2.5} value={petWid} setter={setPetWid} />
         </div>
-        <div className="App-image">
+        <div className={imgClass}>
           <img src={imgSrc} height="100%"></img>
         </div>
         <div>Predicted label: {label}</div>
